@@ -30,6 +30,20 @@ done
 echo "=== NemoNet Installer ==="
 echo ""
 
+# ── Phase 0: Git submodules (skills) ─────────────────────────────
+echo "Phase 0: Skills (netsec-skills-suite)"
+
+if [ -f "${REPO_ROOT}/.gitmodules" ]; then
+  echo "  Initializing git submodules..."
+  (cd "$REPO_ROOT" && git submodule update --init --recursive)
+  SKILL_COUNT=$(ls -d "${REPO_ROOT}/workspace/skills/netsec-skills-suite/skills"/*/ 2>/dev/null | wc -l | tr -d ' ')
+  echo "  ${SKILL_COUNT} skills loaded"
+else
+  echo "  No submodules configured — skipping"
+fi
+
+echo ""
+
 # ── Phase 1: NemoClaw runtime ──────────────────────────────────────
 echo "Phase 1: NemoClaw runtime"
 

@@ -15,6 +15,11 @@ sandbox:
   workspace:
     path: ./workspace
 
+  # Skills from netsec-skills-suite (git submodule)
+  skills:
+    source: ./workspace/skills/netsec-skills-suite/skills
+    manifest: ./workspace/skills/netsec-skills-suite/manifest.json
+
   # MCP servers available inside the sandbox
   mcp_servers:
     - name: juniper-mist-mcp

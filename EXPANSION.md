@@ -293,12 +293,12 @@ All other traffic is blocked by the NemoClaw sandbox.
 
 ### Phase 2 — Skills & MCP Servers
 
-- [ ] Add netsec-skills-suite as submodule in workspace/skills/
-- [ ] Add OpenClaw frontmatter to all SKILL.md files
+- [x] Add netsec-skills-suite as submodule in workspace/skills/
+- [x] Add OpenClaw frontmatter to all SKILL.md files (already in upstream)
+- [x] Create manifest.json with skill registry (included in submodule)
 - [ ] Build juniper-mist-mcp
 - [ ] Build palo-alto-mcp
 - [ ] Build aws-network-mcp
-- [ ] Create manifest.json with skill registry
 - [ ] Test skills inside NemoClaw sandbox
 
 ### Phase 3 — Deployment & Testing

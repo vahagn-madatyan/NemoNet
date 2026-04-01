@@ -14,8 +14,9 @@ RUN for dir in /opt/mcp-servers/*/; do \
       fi; \
     done
 
-# --- Install skills ---
-COPY workspace/skills/ /sandbox/skills/
+# --- Install skills (from netsec-skills-suite submodule) ---
+COPY workspace/skills/netsec-skills-suite/skills/ /sandbox/skills/
+COPY workspace/skills/netsec-skills-suite/manifest.json /sandbox/manifest.json
 
 # --- Copy workspace files ---
 COPY workspace/SOUL.md /sandbox/workspace/SOUL.md

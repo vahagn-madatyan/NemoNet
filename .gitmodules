@@ -1,0 +1,3 @@
+[submodule "workspace/skills/netsec-skills-suite"]
+	path = workspace/skills/netsec-skills-suite
+	url = https://github.com/vahagn-madatyan/netsec-skills-suite.git

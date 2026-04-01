@@ -282,15 +282,15 @@ cd nemonet && git pull
 - [x] Create scripts/install.sh (two-phase, mirrors NetClaw)
 - [x] Create docker/Dockerfile.sandbox
 - [x] Create launchable/setup.sh
-- [ ] Add netsec-skills-suite to workspace/skills/ (submodule or vendored)
+- [x] Add netsec-skills-suite to workspace/skills/ (git submodule)
+- [x] Wire manifest.json from submodule into blueprint
 - [ ] Build MCP servers in mcp-servers/
-- [ ] Create manifest.json with skill registry and profiles
 - [ ] Tag v0.1.0 release
 
 ### Phase 2 — Skills Integration
 
-- [ ] Add OpenClaw-native frontmatter to all SKILL.md files
-- [ ] Add MCP tool references to vendor-dependent skills
+- [x] Add OpenClaw-native frontmatter to all SKILL.md files (already in upstream)
+- [x] Add MCP tool references to vendor-dependent skills (in manifest.json)
 - [ ] Validate skills work inside NemoClaw sandbox
 
 ### Phase 3 — Deployment
