@@ -1,0 +1,45 @@
+# NemoNet Base Egress Policy
+# Allows vendor API endpoints required by bundled skills and MCP servers.
+# All other egress traffic is blocked by the NemoClaw sandbox.
+
+version: 1
+description: NemoNet base network policy — vendor API access for network operations
+
+rules:
+  # --- Juniper Mist Cloud ---
+  - host: "api.mist.com"
+    port: 443
+    protocol: https
+    comment: Juniper Mist Cloud API (US)
+  - host: "api.eu.mist.com"
+    port: 443
+    protocol: https
+    comment: Juniper Mist Cloud API (EU)
+
+  # --- Palo Alto Networks ---
+  - host: "*.paloaltonetworks.com"
+    port: 443
+    protocol: https
+    comment: Panorama and PAN-OS management
+
+  # --- AWS ---
+  - host: "*.amazonaws.com"
+    port: 443
+    protocol: https
+    comment: AWS APIs (EC2, VPC, TGW, R53, etc.)
+
+  # --- Cisco Meraki ---
+  - host: "api.meraki.com"
+    port: 443
+    protocol: https
+    comment: Meraki Dashboard API
+
+  # --- Inference providers ---
+  - host: "api.anthropic.com"
+    port: 443
+    protocol: https
+    comment: Claude API
+  - host: "integrate.api.nvidia.com"
+    port: 443
+    protocol: https
+    comment: NVIDIA Cloud inference (Nemotron, etc.)

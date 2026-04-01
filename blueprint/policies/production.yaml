@@ -1,0 +1,31 @@
+# NemoNet Production Policy
+# Strict egress — only vendor endpoints required for operations.
+# No wildcard rules. Every endpoint is explicitly declared.
+
+version: 1
+description: Production network policy — strict vendor-only egress
+
+rules:
+  # --- Juniper Mist ---
+  - host: "api.mist.com"
+    port: 443
+    protocol: https
+
+  # --- Palo Alto Panorama ---
+  # Replace with your Panorama FQDN
+  - host: "panorama.example.com"
+    port: 443
+    protocol: https
+
+  # --- AWS (scoped to required services) ---
+  - host: "ec2.us-east-1.amazonaws.com"
+    port: 443
+    protocol: https
+  - host: "ec2.us-west-2.amazonaws.com"
+    port: 443
+    protocol: https
+
+  # --- Inference ---
+  - host: "api.anthropic.com"
+    port: 443
+    protocol: https

@@ -1,12 +1,11 @@
 # Build artifacts and caches
-*.pyc
-*.tsbuildinfo
-.pytest_cache/
-__pycache__/
-coverage/
-dist/
-docs/_build/
 node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+*.pyc
+__pycache__/
+.pytest_cache/
 
 # OS metadata
 .DS_Store
@@ -18,6 +17,7 @@ draft_newsletter_*
 research/
 specs/
 vdr-notes/
+.bg-shell/
 
 # Security: secrets, credentials, and keys
 *_ecdsa
@@ -44,3 +44,7 @@ secrets.json
 secrets.yaml
 service-account*.json
 token.json
+
+# User-specific workspace files (operators customize these locally)
+workspace/USER.md
+workspace/TOOLS.md

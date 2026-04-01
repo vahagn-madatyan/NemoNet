@@ -1,0 +1,24 @@
+# NemoNet Sandbox Image
+# Extends the OpenShell/OpenClaw base with NemoNet skills and MCP servers.
+#
+# Build:  docker build -f docker/Dockerfile.sandbox -t nemonet-sandbox .
+# Usage:  Used by NemoClaw blueprint for container-mode deployments.
+
+FROM ghcr.io/nvidia/openshell-community/sandboxes/openclaw:latest
+
+# --- Install MCP servers ---
+COPY mcp-servers/ /opt/mcp-servers/
+RUN for dir in /opt/mcp-servers/*/; do \
+      if [ -f "${dir}package.json" ]; then \
+        cd "$dir" && npm install --production --silent; \
+      fi; \
+    done
+
+# --- Install skills ---
+COPY workspace/skills/ /sandbox/skills/
+
+# --- Copy workspace files ---
+COPY workspace/SOUL.md /sandbox/workspace/SOUL.md
+COPY workspace/AGENTS.md /sandbox/workspace/AGENTS.md
+COPY workspace/IDENTITY.md /sandbox/workspace/IDENTITY.md
+COPY workspace/HEARTBEAT.md /sandbox/workspace/HEARTBEAT.md

@@ -1,51 +1,19 @@
 {
-  "name": "nemoclaw",
+  "name": "nemonet",
   "version": "0.1.0",
-  "description": "NemoClaw — run OpenClaw inside OpenShell with NVIDIA inference",
+  "description": "NemoNet — network automation agent platform built on NemoClaw",
   "license": "Apache-2.0",
-  "bin": {
-    "nemoclaw": "./bin/nemoclaw.js"
-  },
   "scripts": {
-    "test": "vitest run",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "typecheck": "tsc -p jsconfig.json",
-    "typecheck:cli": "tsc -p tsconfig.cli.json",
-    "prepare": "if [ -d .git ]; then if command -v prek >/dev/null 2>&1; then prek install; elif [ -d node_modules/@j178/prek ]; then echo \"ERROR: prek package found but binary not in PATH\" && exit 1; else echo \"Skipping git hook setup (prek not installed)\"; fi; fi",
-    "prepublishOnly": "cd nemoclaw && env -u npm_config_global -u npm_config_prefix -u npm_config_omit npm install --ignore-scripts && ./node_modules/.bin/tsc"
+    "install:nemoclaw": "bash scripts/update-nemoclaw.sh",
+    "install:mcps": "bash scripts/install-mcps.sh",
+    "setup": "bash scripts/install.sh",
+    "start": "nemoclaw start --blueprint ./blueprint/blueprint.yaml --workspace ./workspace"
   },
-  "dependencies": {
-    "openclaw": "2026.3.11"
-  },
-  "files": [
-    "bin/",
-    "nemoclaw/dist/",
-    "nemoclaw/openclaw.plugin.json",
-    "nemoclaw/package.json",
-    "nemoclaw-blueprint/",
-    "scripts/",
-    "Dockerfile",
-    ".dockerignore"
-  ],
   "engines": {
     "node": ">=22.16.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/NVIDIA/NemoClaw.git"
-  },
-  "devDependencies": {
-    "@commitlint/cli": "^20.5.0",
-    "@commitlint/config-conventional": "^20.5.0",
-    "@eslint/js": "^10.0.1",
-    "@j178/prek": "^0.3.6",
-    "@types/node": "^25.5.0",
-    "@vitest/coverage-v8": "^4.1.0",
-    "execa": "^9.6.1",
-    "eslint": "^10.1.0",
-    "tsx": "^4.21.0",
-    "typescript": "^6.0.2",
-    "vitest": "^4.1.0"
+    "url": "https://github.com/vahagn-madatyan/NemoNet.git"
   }
 }

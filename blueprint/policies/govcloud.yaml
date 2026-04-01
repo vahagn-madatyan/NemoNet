@@ -1,0 +1,17 @@
+# NemoNet GovCloud Policy
+# FIPS-compliant endpoints only. No commercial cloud endpoints.
+
+version: 1
+description: GovCloud policy — FIPS-only endpoints for regulated environments
+
+rules:
+  # --- AWS GovCloud ---
+  - host: "*.us-gov-west-1.amazonaws.com"
+    port: 443
+    protocol: https
+  - host: "*.us-gov-east-1.amazonaws.com"
+    port: 443
+    protocol: https
+
+  # --- Inference (local only in GovCloud) ---
+  # No external inference endpoints — use local NIM

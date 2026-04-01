@@ -1,0 +1,19 @@
+# NemoNet Lab Policy
+# Permissive policy for development and testing environments.
+# Inherits base rules and adds broad access for lab devices.
+
+version: 1
+description: Permissive lab policy — broad access for development and testing
+
+inherits: base.yaml
+
+rules:
+  # Lab access — adjust to your environment
+  - host: "*"
+    port: 443
+    protocol: https
+    comment: Allow all HTTPS for lab/dev (override in production)
+  - host: "*"
+    port: 22
+    protocol: ssh
+    comment: SSH to lab devices

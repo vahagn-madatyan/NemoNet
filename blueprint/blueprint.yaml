@@ -1,0 +1,57 @@
+# NemoNet Blueprint
+# Extends NemoClaw's sandbox with network-specific configuration.
+# This blueprint is passed to `nemoclaw onboard --blueprint ./blueprint/blueprint.yaml`
+
+name: nemonet
+version: 0.1.0
+description: Network automation agent platform — sandboxed AI for network operations
+
+# Sandbox configuration
+sandbox:
+  # Base image for the sandbox container
+  image: ghcr.io/nvidia/openshell-community/sandboxes/openclaw:latest
+
+  # Workspace files injected at session start
+  workspace:
+    path: ./workspace
+
+  # MCP servers available inside the sandbox
+  mcp_servers:
+    - name: juniper-mist-mcp
+      path: ./mcp-servers/juniper-mist-mcp
+      transport: stdio
+    - name: palo-alto-mcp
+      path: ./mcp-servers/palo-alto-mcp
+      transport: stdio
+    - name: aws-network-mcp
+      path: ./mcp-servers/aws-network-mcp
+      transport: stdio
+    - name: meraki-mcp
+      path: ./mcp-servers/meraki-mcp
+      transport: stdio
+    - name: cno-mcp
+      path: ./mcp-servers/cno-mcp
+      transport: stdio
+    - name: git-netops-mcp
+      path: ./mcp-servers/git-netops-mcp
+      transport: stdio
+
+# Network egress policy
+# Default policy for NemoNet — allows only declared vendor endpoints.
+# Override with profile-specific policies via --policy flag.
+policy: ./blueprint/policies/base.yaml
+
+# Deployment profiles
+profiles:
+  lab:
+    description: Permissive for development and testing
+    policy: ./blueprint/policies/lab.yaml
+  production:
+    description: Strict production egress — only declared vendor endpoints
+    policy: ./blueprint/policies/production.yaml
+  govcloud:
+    description: GovCloud + FIPS-only endpoints
+    policy: ./blueprint/policies/govcloud.yaml
+  demo:
+    description: Launchable demo profile — pre-configured for evaluation
+    policy: ./blueprint/policies/base.yaml
