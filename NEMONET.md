@@ -148,15 +148,19 @@ the install simplifies to `npm install -g nemoclaw`.
 ```
 nemonet/
 ├── blueprint/                    # NemoClaw blueprint (extension point)
-│   ├── blueprint.yaml            # Sandbox config, MCP servers, profiles
+│   ├── blueprint.yaml            # Sandbox config, inference, policy
 │   └── policies/
 │       ├── base.yaml             # Default egress (vendor endpoints)
 │       ├── production.yaml       # Strict: explicit endpoints only
 │       ├── govcloud.yaml         # FIPS-only endpoints
 │       └── lab.yaml              # Permissive for dev/test
 │
+├── config/
+│   └── openclaw.json             # MCP server declarations (deployed to ~/.openclaw/)
+│
 ├── workspace/                    # Injected into sandbox at session start
-│   ├── skills/                   # Network skills (submodule or vendored)
+│   ├── skills/
+│   │   └── netsec-skills-suite/  # 37 skills (git submodule)
 │   ├── SOUL.md                   # Agent expertise and operating rules
 │   ├── AGENTS.md                 # Operating procedures, safety guardrails
 │   ├── IDENTITY.md               # Agent identity card
@@ -164,27 +168,16 @@ nemonet/
 │   ├── TOOLS.md                  # Device inventory, credential refs
 │   └── HEARTBEAT.md              # Periodic health check procedures
 │
-├── mcp-servers/                  # Network MCP tool servers
-│   ├── juniper-mist-mcp/
-│   ├── palo-alto-mcp/
-│   ├── aws-network-mcp/
-│   ├── meraki-mcp/
-│   ├── cno-mcp/
-│   └── git-netops-mcp/
-│
 ├── docker/
-│   └── Dockerfile.sandbox        # OpenShell base + skills + MCPs
+│   └── Dockerfile.sandbox        # OpenShell base + skills + config
 │
 ├── launchable/                   # NVIDIA Brev one-click deploy
 │   └── setup.sh
 │
 ├── scripts/
-│   ├── install.sh                # Two-phase installer
-│   ├── install-mcps.sh           # MCP dependency installer
-│   ├── update-nemoclaw.sh        # Update NemoClaw runtime
-│   └── generate-egress-policy.sh # Auto-gen policy from manifest
+│   ├── install.sh                # Multi-phase installer
+│   └── update-nemoclaw.sh        # Update NemoClaw runtime
 │
-├── manifest.json                 # Skill registry, profiles, egress mapping
 ├── package.json                  # NemoNet metadata
 ├── NEMONET.md                    # This file
 ├── EXPANSION.md                  # Detailed integration plan
@@ -196,17 +189,18 @@ nemonet/
 
 ## 5. Install Flow
 
-Two-phase setup (mirrors the NetClaw pattern):
+Multi-phase setup (mirrors the NetClaw pattern):
 
 ```bash
-git clone https://github.com/vahagn-madatyan/NemoNet.git
+git clone --recurse-submodules https://github.com/vahagn-madatyan/NemoNet.git
 cd NemoNet
 ./scripts/install.sh
 ```
 
+**Phase 0** — Initialize git submodules (37 netsec skills)
 **Phase 1** — Install NemoClaw runtime (cloned from GitHub, `npm link`)
-**Phase 2** — Run `nemoclaw onboard` with NemoNet's blueprint and workspace
-**Phase 3** — Install MCP server npm dependencies
+**Phase 2** — Deploy `openclaw.json` to `~/.openclaw/` (MCP server config)
+**Phase 3** — Run `nemoclaw onboard` with NemoNet's blueprint and workspace
 
 After install:
 
@@ -230,16 +224,23 @@ nemoclaw status   # Check sandbox health
 
 ## 7. MCP Server Coordination
 
-Skills reference MCP servers by name. The MCP servers live in `mcp-servers/`.
+MCP servers are **external packages** configured in `config/openclaw.json`. They
+are deployed to `~/.openclaw/openclaw.json` during install. This follows the same
+pattern as NetClaw — MCP servers are configured at the OpenClaw layer, not in the
+NemoClaw blueprint.
 
-| MCP Server | Vendor API | Skills That Use It |
-|------------|-----------|-------------------|
-| `juniper-mist-mcp` | api.mist.com | `wireless-security-audit` |
-| `palo-alto-mcp` | Panorama REST/XML API | `palo-alto-firewall-audit` |
-| `aws-network-mcp` | AWS SDK (Boto3) | `aws-networking-audit`, `cloud-security-posture` |
-| `meraki-mcp` | Meraki Dashboard API | (future skills) |
-| `cno-mcp` | CNO Platform API | (future skills) |
-| `git-netops-mcp` | Git + GitHub/GitLab API | `change-verification`, `config-management` |
+| MCP Server | Package / URL | Transport | Skills That Use It |
+|------------|--------------|-----------|-------------------|
+| `zscaler-mcp` | `uvx zscaler-mcp` | stdio | `zscaler-zia-zpa-audit` |
+| `juniper-mist-mcp` | `mcp.ai.juniper.net` (cloud) | remote | `wireless-security-audit` |
+| `cloudflare-api` | `mcp.cloudflare.com` (cloud) | remote | network diagnostics |
+| `cloudflare-radar` | `radar.mcp.cloudflare.com` (cloud) | remote | BGP/DNS analysis |
+| `cloudflare-dns-analytics` | `dns-analytics.mcp.cloudflare.com` (cloud) | remote | DNS debugging |
+| `palo-alto-mcp` | `uvx pan-os-mcp` | stdio | `palo-alto-firewall-audit` |
+| `aws-network-mcp` | `uvx awslabs.aws-network-mcp-server` | stdio | `aws-networking-audit`, `cloud-security-posture` |
+| `nmap-mcp` | `uvx nmap-mcp` | stdio | `vulnerability-assessment` |
+| `netbox-mcp` | `uvx netbox-mcp` | stdio | `source-of-truth-audit` |
+| `github-mcp` | Docker image | stdio | `change-verification`, `config-management` |
 
 Skills without MCP dependencies operate in CLI-fallback mode using SSH/exec.
 
@@ -283,8 +284,9 @@ cd nemonet && git pull
 - [x] Create docker/Dockerfile.sandbox
 - [x] Create launchable/setup.sh
 - [x] Add netsec-skills-suite to workspace/skills/ (git submodule)
-- [x] Wire manifest.json from submodule into blueprint
-- [ ] Build MCP servers in mcp-servers/
+- [x] Configure MCP servers in config/openclaw.json (external packages)
+- [x] Update launchable/setup.sh for production Brev deploy
+- [ ] Create Brev Launchable via Console (get launchableID)
 - [ ] Tag v0.1.0 release
 
 ### Phase 2 — Skills Integration

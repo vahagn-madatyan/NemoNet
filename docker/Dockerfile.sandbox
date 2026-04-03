@@ -1,18 +1,16 @@
 # NemoNet Sandbox Image
-# Extends the OpenShell/OpenClaw base with NemoNet skills and MCP servers.
+# Extends the OpenShell/OpenClaw base with NemoNet skills and workspace.
 #
 # Build:  docker build -f docker/Dockerfile.sandbox -t nemonet-sandbox .
 # Usage:  Used by NemoClaw blueprint for container-mode deployments.
+#
+# NOTE: MCP servers are external packages (uvx/npx), configured via
+# openclaw.json at runtime. They are NOT baked into the image.
 
 FROM ghcr.io/nvidia/openshell-community/sandboxes/openclaw:latest
 
-# --- Install MCP servers ---
-COPY mcp-servers/ /opt/mcp-servers/
-RUN for dir in /opt/mcp-servers/*/; do \
-      if [ -f "${dir}package.json" ]; then \
-        cd "$dir" && npm install --production --silent; \
-      fi; \
-    done
+# --- Install uv (for uvx MCP servers: zscaler, nmap, palo-alto, etc.) ---
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # --- Install skills (from netsec-skills-suite submodule) ---
 COPY workspace/skills/netsec-skills-suite/skills/ /sandbox/skills/
@@ -23,3 +21,6 @@ COPY workspace/SOUL.md /sandbox/workspace/SOUL.md
 COPY workspace/AGENTS.md /sandbox/workspace/AGENTS.md
 COPY workspace/IDENTITY.md /sandbox/workspace/IDENTITY.md
 COPY workspace/HEARTBEAT.md /sandbox/workspace/HEARTBEAT.md
+
+# --- Deploy MCP server configuration ---
+COPY config/openclaw.json /root/.openclaw/openclaw.json

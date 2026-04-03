@@ -5,9 +5,8 @@
   "license": "Apache-2.0",
   "scripts": {
     "install:nemoclaw": "bash scripts/update-nemoclaw.sh",
-    "install:mcps": "bash scripts/install-mcps.sh",
     "setup": "bash scripts/install.sh",
-    "start": "nemoclaw start --blueprint ./blueprint/blueprint.yaml --workspace ./workspace"
+    "start": "nemoclaw start"
   },
   "engines": {
     "node": ">=22.16.0"

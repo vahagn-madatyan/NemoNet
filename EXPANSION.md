@@ -191,17 +191,25 @@ NemoNet injects these files into every sandbox session (mirrors NetClaw pattern)
 
 ## 6. MCP Server Coordination
 
-MCP servers live in `mcp-servers/` and provide typed tool interfaces to vendor APIs.
-Skills declare which MCP servers they need via `mcpDependencies`.
+MCP servers are **external packages** (not in-repo code), configured in
+`config/openclaw.json` and deployed to `~/.openclaw/openclaw.json` at install
+time. This follows the NetClaw pattern — OpenClaw manages MCP servers, NemoClaw
+manages sandbox/inference.
 
-| MCP Server | Vendor API | Transport | Skills |
+Skills declare which MCP servers they need via `mcpDependencies` in the manifest.
+
+| MCP Server | Package / URL | Transport | Skills |
 |---|---|---|---|
-| `juniper-mist-mcp` | api.mist.com | stdio | `wireless-security-audit` |
-| `palo-alto-mcp` | Panorama REST/XML | stdio | `palo-alto-firewall-audit` |
-| `aws-network-mcp` | AWS SDK (Boto3) | stdio | `aws-networking-audit`, `cloud-security-posture` |
-| `meraki-mcp` | Meraki Dashboard API | stdio | (future) |
-| `cno-mcp` | CNO Platform API | stdio | (future) |
-| `git-netops-mcp` | Git + GitHub/GitLab | stdio | `change-verification`, `config-management` |
+| `zscaler-mcp` | `uvx zscaler-mcp` (PyPI) | stdio | `zscaler-zia-zpa-audit` |
+| `juniper-mist-mcp` | `mcp.ai.juniper.net` (cloud) | remote | `wireless-security-audit` |
+| `cloudflare-api` | `mcp.cloudflare.com` (cloud) | remote | network diagnostics |
+| `cloudflare-radar` | `radar.mcp.cloudflare.com` (cloud) | remote | BGP/DNS analysis |
+| `cloudflare-dns-analytics` | `dns-analytics.mcp.cloudflare.com` (cloud) | remote | DNS debugging |
+| `palo-alto-mcp` | `uvx pan-os-mcp` (PyPI) | stdio | `palo-alto-firewall-audit` |
+| `aws-network-mcp` | `uvx awslabs.aws-network-mcp-server` (PyPI) | stdio | `aws-networking-audit`, `cloud-security-posture` |
+| `nmap-mcp` | `uvx nmap-mcp` (PyPI) | stdio | `vulnerability-assessment` |
+| `netbox-mcp` | `uvx netbox-mcp` (PyPI) | stdio | `source-of-truth-audit` |
+| `github-mcp` | Docker image | stdio | `change-verification`, `config-management` |
 
 Skills without MCP dependencies fall back to CLI mode (SSH/exec to devices).
 
@@ -212,11 +220,13 @@ Skills without MCP dependencies fall back to CLI mode (SSH/exec to devices).
 ### Blueprint
 
 `blueprint/blueprint.yaml` is NemoClaw's primary extension point. It declares:
-- Sandbox base image
-- Workspace path
-- MCP server list and transport
-- Default egress policy
+- Sandbox base image and name
+- Inference provider profiles (NVIDIA Cloud, local vLLM)
+- Egress policy
 - Deployment profiles
+
+Note: MCP servers are configured separately in `config/openclaw.json`, not in
+the blueprint. The blueprint handles sandbox lifecycle and inference routing.
 
 ### Egress Policies
 
@@ -291,14 +301,14 @@ All other traffic is blocked by the NemoClaw sandbox.
 - [x] Create docker/Dockerfile.sandbox
 - [x] Create launchable/setup.sh
 
-### Phase 2 — Skills & MCP Servers
+### Phase 2 — Skills & MCP Servers (done)
 
 - [x] Add netsec-skills-suite as submodule in workspace/skills/
 - [x] Add OpenClaw frontmatter to all SKILL.md files (already in upstream)
 - [x] Create manifest.json with skill registry (included in submodule)
-- [ ] Build juniper-mist-mcp
-- [ ] Build palo-alto-mcp
-- [ ] Build aws-network-mcp
+- [x] Configure MCP servers in config/openclaw.json (external packages, not in-repo)
+  - Zscaler (uvx), Juniper Mist (cloud), Cloudflare (cloud), PAN-OS (uvx),
+    AWS (uvx), nmap (uvx), NetBox (uvx), GitHub (Docker)
 - [ ] Test skills inside NemoClaw sandbox
 
 ### Phase 3 — Deployment & Testing

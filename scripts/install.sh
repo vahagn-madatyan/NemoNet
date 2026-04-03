@@ -1,9 +1,11 @@
 #!/bin/bash
 # scripts/install.sh — NemoNet installer
 #
-# Two-phase setup (mirrors NetClaw pattern):
+# Setup phases:
+#   Phase 0: Initialize git submodules (skills)
 #   Phase 1: Install NemoClaw runtime from GitHub (not on npm yet)
-#   Phase 2: Run NemoClaw onboard with NemoNet's blueprint + workspace
+#   Phase 2: Deploy openclaw.json (MCP server configuration)
+#   Phase 3: Run NemoClaw onboard with NemoNet's blueprint + workspace
 #
 # Usage:
 #   ./scripts/install.sh                    # Interactive setup
@@ -17,6 +19,7 @@ REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 PROFILE="${PROFILE:-}"
 NON_INTERACTIVE=""
 NEMOCLAW_REPO="https://github.com/NVIDIA/NemoClaw.git"
+OPENCLAW_DIR="${HOME}/.openclaw"
 
 # Parse args
 while [[ $# -gt 0 ]]; do
@@ -54,7 +57,6 @@ else
   echo "  Installing NemoClaw from GitHub..."
   echo "  (NemoClaw is not yet published to npm — installing from source)"
 
-  # Clone and install NemoClaw from GitHub
   NEMOCLAW_TMP="$(mktemp -d)"
   git clone --depth 1 "${NEMOCLAW_REPO}" "${NEMOCLAW_TMP}/NemoClaw"
   (cd "${NEMOCLAW_TMP}/NemoClaw" && npm install && npm link)
@@ -63,11 +65,40 @@ else
   echo "  NemoClaw $(nemoclaw --version 2>/dev/null || echo 'installed') ready"
 fi
 
-# ── Phase 2: NemoNet onboarding ────────────────────────────────────
+# ── Phase 2: Deploy openclaw.json (MCP servers) ──────────────────
 echo ""
-echo "Phase 2: NemoNet configuration"
+echo "Phase 2: MCP server configuration"
 
-# Build onboard command
+mkdir -p "$OPENCLAW_DIR"
+
+if [ -f "${OPENCLAW_DIR}/openclaw.json" ]; then
+  echo "  Existing openclaw.json found — merging NemoNet MCP servers"
+  # If jq is available, merge; otherwise warn and skip
+  if command -v jq &>/dev/null; then
+    # Merge NemoNet's mcpServers into existing config (NemoNet entries win on conflict)
+    jq -s '.[0] * {mcpServers: (.[0].mcpServers // {} ) * .[1].mcpServers}' \
+      "${OPENCLAW_DIR}/openclaw.json" \
+      "${REPO_ROOT}/config/openclaw.json" > "${OPENCLAW_DIR}/openclaw.json.tmp"
+    mv "${OPENCLAW_DIR}/openclaw.json.tmp" "${OPENCLAW_DIR}/openclaw.json"
+    echo "  Merged successfully"
+  else
+    echo "  WARNING: jq not found — cannot merge. Back up existing and replace."
+    cp "${OPENCLAW_DIR}/openclaw.json" "${OPENCLAW_DIR}/openclaw.json.bak"
+    cp "${REPO_ROOT}/config/openclaw.json" "${OPENCLAW_DIR}/openclaw.json"
+  fi
+else
+  cp "${REPO_ROOT}/config/openclaw.json" "${OPENCLAW_DIR}/openclaw.json"
+  echo "  Deployed openclaw.json to ${OPENCLAW_DIR}/"
+fi
+
+# Count configured MCP servers
+MCP_COUNT=$(grep -c '"command"\|"url"' "${OPENCLAW_DIR}/openclaw.json" || echo "0")
+echo "  ${MCP_COUNT} MCP servers configured"
+
+# ── Phase 3: NemoClaw onboard ─────────────────────────────────────
+echo ""
+echo "Phase 3: NemoClaw onboard"
+
 ONBOARD_CMD="nemoclaw onboard"
 ONBOARD_CMD+=" --blueprint ${REPO_ROOT}/blueprint/blueprint.yaml"
 ONBOARD_CMD+=" --workspace ${REPO_ROOT}/workspace"
@@ -83,22 +114,13 @@ fi
 echo "  Running: ${ONBOARD_CMD}"
 eval "$ONBOARD_CMD"
 
-# ── Phase 3: Install MCP server dependencies ──────────────────────
-echo ""
-echo "Phase 3: MCP servers"
-
-for mcp_dir in "${REPO_ROOT}"/mcp-servers/*/; do
-  if [ -f "${mcp_dir}/package.json" ]; then
-    mcp_name=$(basename "$mcp_dir")
-    echo "  Installing ${mcp_name}..."
-    (cd "$mcp_dir" && npm install --production --silent)
-  fi
-done
-
 echo ""
 echo "=== NemoNet ready ==="
 echo ""
 echo "  Start:   nemoclaw start"
 echo "  Status:  nemoclaw status"
 echo "  Profile: ${PROFILE:-default}"
+echo ""
+echo "  MCP servers: ${MCP_COUNT} configured in ~/.openclaw/openclaw.json"
+echo "  Skills:      ${SKILL_COUNT:-0} loaded from netsec-skills-suite"
 echo ""

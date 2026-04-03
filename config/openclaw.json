@@ -1,0 +1,86 @@
+{
+  "mcpServers": {
+    "zscaler-mcp": {
+      "command": "uvx",
+      "args": ["zscaler-mcp"],
+      "env": {
+        "ZSCALER_CLIENT_ID": "${ZSCALER_CLIENT_ID}",
+        "ZSCALER_CLIENT_SECRET": "${ZSCALER_CLIENT_SECRET}",
+        "ZSCALER_CUSTOMER_ID": "${ZSCALER_CUSTOMER_ID}",
+        "ZSCALER_VANITY_DOMAIN": "${ZSCALER_VANITY_DOMAIN}"
+      }
+    },
+
+    "juniper-mist-mcp": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://mcp.ai.juniper.net/mcp/mist",
+        "--header",
+        "Authorization:Bearer ${MIST_API_TOKEN}",
+        "--header",
+        "X-Mist-Base-URL:https://api.mist.com"
+      ]
+    },
+
+    "cloudflare-api": {
+      "command": "npx",
+      "args": ["mcp-remote", "https://mcp.cloudflare.com/mcp"]
+    },
+
+    "cloudflare-radar": {
+      "command": "npx",
+      "args": ["mcp-remote", "https://radar.mcp.cloudflare.com/mcp"]
+    },
+
+    "cloudflare-dns-analytics": {
+      "command": "npx",
+      "args": ["mcp-remote", "https://dns-analytics.mcp.cloudflare.com/mcp"]
+    },
+
+    "palo-alto-mcp": {
+      "command": "uvx",
+      "args": ["pan-os-mcp"],
+      "env": {
+        "PAN_API_KEY": "${PAN_API_KEY}",
+        "PAN_HOST": "${PAN_HOST}"
+      }
+    },
+
+    "aws-network-mcp": {
+      "command": "uvx",
+      "args": ["awslabs.aws-network-mcp-server@latest"],
+      "env": {
+        "AWS_PROFILE": "${AWS_PROFILE:-default}",
+        "AWS_REGION": "${AWS_REGION:-us-east-1}"
+      }
+    },
+
+    "nmap-mcp": {
+      "command": "uvx",
+      "args": ["nmap-mcp"],
+      "env": {}
+    },
+
+    "netbox-mcp": {
+      "command": "uvx",
+      "args": ["netbox-mcp"],
+      "env": {
+        "NETBOX_URL": "${NETBOX_URL}",
+        "NETBOX_TOKEN": "${NETBOX_TOKEN}"
+      }
+    },
+
+    "github-mcp": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-e", "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "ghcr.io/github/github-mcp-server"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    }
+  }
+}
